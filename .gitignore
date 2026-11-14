@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Electron Forge and Vite output
+out/
+.vite/
+dist/
+
+# Test output
+coverage/
+
+# Local tooling and logs
+*.log
+*.tsbuildinfo
+.oxlintcache
+.DS_Store
