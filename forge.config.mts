@@ -10,6 +10,7 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    protocols: [{ name: 'Pocket Notebook', schemes: ['pocketnotebook'] }],
   },
   rebuildConfig: {},
   makers: [

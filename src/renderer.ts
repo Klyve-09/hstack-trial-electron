@@ -38,6 +38,7 @@ function editor(item?: Item) {
       <div class="actions">
         <button type="submit">Save item</button>
         <a href="#items" class="button secondary">Cancel</a>
+        ${item ? '<button type="button" id="copy-link" class="secondary">Copy note link</button>' : ''}
         ${item ? '<button type="button" id="delete" class="danger">Delete item</button>' : ''}
       </div>
     </form>`;
@@ -80,6 +81,11 @@ function editor(item?: Item) {
       'Item saved.',
     );
   });
+  app.querySelector('#copy-link')?.addEventListener('click', () => {
+    window.notebook.copyLink(item!.id);
+    message.textContent =
+      'Note link copied. Open it on this device to return to this item.';
+  });
   app.querySelector('#delete')?.addEventListener('click', () => {
     if (busy || !confirm('Delete this item? This cannot be undone.')) return;
     void mutate(() => window.notebook.remove(item!.id), 'Item deleted.');
@@ -118,7 +124,8 @@ async function render() {
     }
     app.innerHTML = `<div class="heading"><div><p class="eyebrow">Your personal collection</p>
       <h1>Items <span class="count">${items.length}</span></h1></div>
-      <a href="#new" class="button">+ New item</a></div>
+      <div class="actions"><button id="export" class="secondary">Export notes</button>
+      <a href="#new" class="button">+ New item</a></div></div>
       ${
         items.length
           ? `<ul class="items">${items
@@ -134,6 +141,20 @@ async function render() {
           : `<div class="empty"><h2>A fresh page awaits</h2>
         <p>Add your first item to start your notebook.</p><a href="#new">Write an item →</a></div>`
       }`;
+    app
+      .querySelector<HTMLButtonElement>('#export')!
+      .addEventListener('click', async (event) => {
+        const button = event.currentTarget as HTMLButtonElement;
+        button.disabled = true;
+        try {
+          const destination = await window.notebook.export();
+          message.textContent = `Notes exported to ${destination}`;
+        } catch (error) {
+          report(error);
+        } finally {
+          button.disabled = false;
+        }
+      });
   } catch (error) {
     if (version !== renderVersion) return;
     app.innerHTML =
@@ -144,6 +165,10 @@ async function render() {
     report(error);
   }
 }
+
+window.notebook.onOpen((id) => {
+  location.hash = `#edit/${encodeURIComponent(id)}`;
+});
 
 window.addEventListener('hashchange', () => {
   if (location.hash === previousHash) return;

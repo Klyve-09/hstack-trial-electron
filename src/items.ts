@@ -12,6 +12,9 @@ export interface ItemDraft {
 }
 
 export interface NotebookAPI {
+  export: () => Promise<string>;
+  copyLink: (id: string) => void;
+  onOpen: (callback: (id: string) => void) => void;
   list: () => Promise<Item[]>;
   save: (draft: ItemDraft) => Promise<Item>;
   remove: (id: string) => Promise<void>;
