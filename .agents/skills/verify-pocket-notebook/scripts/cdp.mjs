@@ -22,7 +22,7 @@ function fail(message, code = 1) {
 
 if (!port || !command) {
   fail(
-    'usage: cdp.mjs <port> wait|click|type|text|value|axtree|url <selector> [text] [--name N] [--dialog accept|dismiss] [--timeout ms]',
+    'usage: cdp.mjs <port> wait|click|type|key|text|value|axtree|url <selector> [text] [--name N] [--dialog accept|dismiss] [--timeout ms]',
     2,
   );
 }
@@ -170,6 +170,31 @@ switch (command) {
       if (role === 'StaticText' || role === 'InlineTextBox') continue;
       process.stdout.write(`${role}${name ? ` "${name}"` : ''}\n`);
     }
+    break;
+  }
+  case 'key': {
+    // A named key such as End, PageDown, Escape, or Enter.
+    const codes = {
+      End: 35,
+      Home: 36,
+      PageDown: 34,
+      PageUp: 33,
+      Escape: 27,
+      Enter: 13,
+      Tab: 9,
+    };
+    const key = args[0];
+    if (!(key in codes))
+      fail(`key must be one of ${Object.keys(codes).join(', ')}`, 2);
+    for (const type of ['rawKeyDown', 'keyUp']) {
+      await send('Input.dispatchKeyEvent', {
+        type,
+        key,
+        code: key,
+        windowsVirtualKeyCode: codes[key],
+      });
+    }
+    await new Promise((resolve) => setTimeout(resolve, 300));
     break;
   }
   case 'value':

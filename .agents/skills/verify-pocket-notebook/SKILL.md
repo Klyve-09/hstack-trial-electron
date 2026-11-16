@@ -64,15 +64,16 @@ Run it first whenever anything looks off. If the commit check fails, stop and la
 $S cdp <command> <selector> [text] [--name "<accessible name>"] [--dialog accept|dismiss] [--timeout ms]
 ```
 
-| Command         | What it does                                                                                                                                    |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wait SEL`      | Waits until a visible element matches.                                                                                                          |
-| `click SEL`     | Moves, presses, and releases the mouse at the element's centre through `Input.dispatchMouseEvent`. Fails if the element is disabled or covered. |
-| `type SEL TEXT` | Clicks the field, selects all with Ctrl+A, and inserts the text through `Input.insertText`. This fires the same `input` events as typing.       |
-| `text [SEL]`    | Prints the element's visible text. The default element is `body`.                                                                               |
-| `axtree`        | Prints the accessibility tree as `role "name"` lines.                                                                                           |
-| `value SEL`     | Prints a form field's current value. `text` does not include field values.                                                                      |
-| `url`           | Prints the page URL. The route is in the hash.                                                                                                  |
+| Command         | What it does                                                                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wait SEL`      | Waits until a visible element matches.                                                                                                                  |
+| `click SEL`     | Moves, presses, and releases the mouse at the element's centre through `Input.dispatchMouseEvent`. Fails if the element is disabled or covered.         |
+| `type SEL TEXT` | Clicks the field, selects all with Ctrl+A, and inserts the text through `Input.insertText`. This fires the same `input` events as typing.               |
+| `key KEY`       | Presses a named key (`End`, `Home`, `PageDown`, `PageUp`, `Escape`, `Enter`, `Tab`) in the focused page. Use `End` to scroll the status line into view. |
+| `text [SEL]`    | Prints the element's visible text. The default element is `body`.                                                                                       |
+| `axtree`        | Prints the accessibility tree as `role "name"` lines.                                                                                                   |
+| `value SEL`     | Prints a form field's current value. `text` does not include field values.                                                                              |
+| `url`           | Prints the page URL. The route is in the hash.                                                                                                          |
 
 - `--name` picks the element whose `aria-label`, or else whose whitespace-collapsed text, equals the name. Prefer it over position: `$S cdp click a --name '+ New item'`.
 - `confirm()` dialogs are reported through CDP. Pass `--dialog accept` or `--dialog dismiss` on the action that opens one. Without the flag, the helper dismisses the dialog and exits 3, so a surprise prompt never blocks later commands.
