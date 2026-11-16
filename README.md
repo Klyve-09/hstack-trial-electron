@@ -40,6 +40,8 @@ The main process reads and writes `items.json` in Electron's `app.getPath('userD
 
 Each item has an ID, title, body, and last-updated timestamp. Saves use a temporary file and rename; unreadable existing data is reported without being overwritten. This is plain JSON, not encrypted storage.
 
+The window size, position, and maximized state are saved to `window-state.json` in the same folder. A missing or unreadable file opens the default window.
+
 The renderer accesses items through a narrow preload bridge and IPC. Context isolation and sandboxing are enabled, and Node integration is disabled.
 
 Built from the official Electron Forge Vite + TypeScript template.

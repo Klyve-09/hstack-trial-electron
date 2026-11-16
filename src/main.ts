@@ -2,14 +2,24 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { readItems, removeItem, saveItem } from './storage';
+import { loadWindowState, saveWindowState } from './windowState';
 import type { ItemDraft } from './items';
 
 if (started) app.quit();
 
 function createWindow() {
+  const stateFile = path.join(app.getPath('userData'), 'window-state.json');
+  const savedState = loadWindowState(stateFile);
+  const bounds = savedState
+    ? {
+        x: savedState.x,
+        y: savedState.y,
+        width: savedState.width,
+        height: savedState.height,
+      }
+    : { width: 960, height: 720 };
   const window = new BrowserWindow({
-    width: 960,
-    height: 720,
+    ...bounds,
     minWidth: 640,
     minHeight: 500,
     title: 'Pocket Notebook',
@@ -19,6 +29,17 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true,
     },
+  });
+  if (savedState?.maximized) window.maximize();
+  window.on('close', () => {
+    try {
+      saveWindowState(stateFile, {
+        ...window.getNormalBounds(),
+        maximized: window.isMaximized(),
+      });
+    } catch (error) {
+      console.error('Could not save window state:', error);
+    }
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', (event) => event.preventDefault());
