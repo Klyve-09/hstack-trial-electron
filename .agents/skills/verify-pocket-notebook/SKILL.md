@@ -22,8 +22,10 @@ S=.agents/skills/verify-pocket-notebook/scripts/notebook.sh
 ## Launch
 
 ```sh
-$S launch
+$S launch   # teardown: $S stop (see Cleanup)
 ```
+
+Launch requires `Xvfb` and ImageMagick `import` on the machine, and refuses to start without them.
 
 Launch does the following:
 
@@ -37,7 +39,7 @@ It prints `ready: display …, CDP port …, commit …`, plus the data and evid
 Environment overrides:
 
 - `PN_RUN` sets the scratch directory for instance state and app data. The default is `/tmp/pocket-notebook-verify/run`.
-- `PN_EVIDENCE` sets the evidence directory. The default is `/tmp/pocket-notebook-verify/evidence/<UTC timestamp>`.
+- `PN_EVIDENCE` sets the evidence directory. The default is `/tmp/pocket-notebook-verify/evidence/<UTC timestamp>`. It must be outside `PN_RUN`, because `stop` deletes `PN_RUN` wholesale. Launch refuses an evidence directory inside it.
 
 ## Isolation
 

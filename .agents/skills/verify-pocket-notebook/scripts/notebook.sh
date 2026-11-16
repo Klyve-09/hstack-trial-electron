@@ -33,6 +33,7 @@ launch() {
   rm -rf "$RUN"
   mkdir -p "$RUN/config"
   local evidence="${PN_EVIDENCE:-/tmp/pocket-notebook-verify/evidence/$(date -u +%Y%m%dT%H%M%SZ)}"
+  [[ "$evidence/" == "$RUN/"* ]] && die "PN_EVIDENCE must be outside PN_RUN; stop deletes PN_RUN"
   mkdir -p "$evidence"
 
   (cd "$ROOT" && npm run package >"$RUN/package.log" 2>&1) ||

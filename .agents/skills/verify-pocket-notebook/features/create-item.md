@@ -21,6 +21,7 @@ Preconditions:
 
 - Baseline: `$S doctor` passes and the heading reads `Items 0`.
 
+- **Empty-state entry.** Choose `Write an item →`. Run `$S cdp click a --name 'Write an item →'` then `$S cdp text 'main h1'`. The output is `New item`. Leave the untouched form with `$S cdp click a --name Cancel`. No dialog appears, and the heading reads `Items 0` again.
 - **Open editor.** Choose `+ New item`. Run `$S cdp click a --name '+ New item'` then `$S cdp text 'main h1'`. The output is `New item`, and the editor shows empty `Title` and `Body` fields and a `Save item` button.
 - **Enter content.** Run `$S cdp type '#title' 'Release checklist'` and `$S cdp type '#body' 'Tag and publish'`. Then run `$S shot create-filled`. The screenshot shows both values in the form.
 - **Save.** Choose `Save item`. Run `$S cdp click button --name 'Save item'` then `$S cdp wait 'ul.items h2' --name 'Release checklist'`. The list returns, the heading reads `Items 1`, and the first item shows `Release checklist`, the excerpt `Tag and publish`, and an `Updated …` time. Run `$S shot create-listed`.
