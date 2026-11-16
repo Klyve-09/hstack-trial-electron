@@ -1,8 +1,12 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { readItems, removeItem, saveItem } from './storage';
-import { loadWindowState, saveWindowState } from './windowState';
+import {
+  correctWindowBounds,
+  loadWindowState,
+  saveWindowState,
+} from './windowState';
 import type { ItemDraft } from './items';
 
 if (started) app.quit();
@@ -11,12 +15,16 @@ function createWindow() {
   const stateFile = path.join(app.getPath('userData'), 'window-state.json');
   const savedState = loadWindowState(stateFile);
   const bounds = savedState
-    ? {
-        x: savedState.x,
-        y: savedState.y,
-        width: savedState.width,
-        height: savedState.height,
-      }
+    ? correctWindowBounds(
+        {
+          x: savedState.x,
+          y: savedState.y,
+          width: savedState.width,
+          height: savedState.height,
+        },
+        screen.getAllDisplays().map((display) => display.workArea),
+        screen.getPrimaryDisplay().workArea,
+      )
     : { width: 960, height: 720 };
   const window = new BrowserWindow({
     ...bounds,

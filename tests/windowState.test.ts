@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { loadWindowState, saveWindowState } from '../src/windowState';
+import {
+  correctWindowBounds,
+  loadWindowState,
+  saveWindowState,
+} from '../src/windowState';
 
 let directory: string;
 let file: string;
@@ -52,4 +56,50 @@ describe('local window state', () => {
     saveWindowState(file, resized);
     expect(loadWindowState(file)).toEqual(resized);
   });
+});
+
+describe('window bounds correction', () => {
+  const primary = { x: 100, y: 40, width: 1200, height: 900 };
+  const secondary = { x: -1600, y: -200, width: 1600, height: 1000 };
+  const workAreas = [primary, secondary];
+
+  it.each([
+    { x: 200, y: 100, width: 800, height: 600 },
+    { x: -1400, y: -100, width: 800, height: 600 },
+    { x: 1299, y: 939, width: 800, height: 600 },
+  ])('keeps visible bounds unchanged: %j', (bounds) => {
+    expect(correctWindowBounds(bounds, workAreas, primary)).toEqual(bounds);
+  });
+
+  it('centers bounds outside every display on the primary work area', () => {
+    const bounds = { x: 3000, y: -2000, width: 801, height: 601 };
+    expect(correctWindowBounds(bounds, workAreas, primary)).toEqual({
+      x: 299,
+      y: 189,
+      width: 801,
+      height: 601,
+    });
+  });
+
+  it('clamps oversized off-screen bounds to the primary work area', () => {
+    const bounds = { x: 3000, y: 2000, width: 2000, height: 1200 };
+    expect(correctWindowBounds(bounds, workAreas, primary)).toEqual(primary);
+  });
+
+  it.each([
+    { x: 1300, y: 100, width: 800, height: 600 },
+    { x: 200, y: 940, width: 800, height: 600 },
+    { x: -700, y: 40, width: 800, height: 600 },
+    { x: 100, y: -560, width: 800, height: 600 },
+  ])(
+    'treats bounds touching only a display edge as off-screen: %j',
+    (bounds) => {
+      expect(correctWindowBounds(bounds, [primary], primary)).toEqual({
+        x: 300,
+        y: 190,
+        width: 800,
+        height: 600,
+      });
+    },
+  );
 });

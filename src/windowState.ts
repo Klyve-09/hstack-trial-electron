@@ -9,6 +9,32 @@ export interface WindowState {
   maximized: boolean;
 }
 
+type WindowBounds = Pick<WindowState, 'x' | 'y' | 'width' | 'height'>;
+
+export function correctWindowBounds(
+  bounds: WindowBounds,
+  workAreas: WindowBounds[],
+  primaryWorkArea: WindowBounds,
+): WindowBounds {
+  const visible = workAreas.some(
+    (area) =>
+      bounds.x < area.x + area.width &&
+      bounds.x + bounds.width > area.x &&
+      bounds.y < area.y + area.height &&
+      bounds.y + bounds.height > area.y,
+  );
+  if (visible) return bounds;
+
+  const width = Math.min(bounds.width, primaryWorkArea.width);
+  const height = Math.min(bounds.height, primaryWorkArea.height);
+  return {
+    x: primaryWorkArea.x + Math.floor((primaryWorkArea.width - width) / 2),
+    y: primaryWorkArea.y + Math.floor((primaryWorkArea.height - height) / 2),
+    width,
+    height,
+  };
+}
+
 export function loadWindowState(file: string): WindowState | null {
   try {
     const value: unknown = JSON.parse(readFileSync(file, 'utf8'));
