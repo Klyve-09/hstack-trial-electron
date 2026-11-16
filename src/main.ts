@@ -28,6 +28,7 @@ function createWindow() {
     : { width: 960, height: 720 };
   const window = new BrowserWindow({
     ...bounds,
+    show: false,
     minWidth: 640,
     minHeight: 500,
     title: 'Pocket Notebook',
@@ -38,12 +39,22 @@ function createWindow() {
       sandbox: true,
     },
   });
-  if (savedState?.maximized) window.maximize();
+  let maximized = savedState?.maximized ?? false;
+  window.on('maximize', () => {
+    if (!window.isMinimized()) maximized = true;
+  });
+  window.on('unmaximize', () => {
+    if (!window.isMinimized()) maximized = false;
+  });
+  window.once('ready-to-show', () => {
+    if (savedState?.maximized) window.maximize();
+    window.show();
+  });
   window.on('close', () => {
     try {
       saveWindowState(stateFile, {
         ...window.getNormalBounds(),
-        maximized: window.isMaximized(),
+        maximized: window.isMinimized() ? maximized : window.isMaximized(),
       });
     } catch (error) {
       console.error('Could not save window state:', error);

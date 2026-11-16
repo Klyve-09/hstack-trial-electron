@@ -66,9 +66,29 @@ describe('window bounds correction', () => {
   it.each([
     { x: 200, y: 100, width: 800, height: 600 },
     { x: -1400, y: -100, width: 800, height: 600 },
-    { x: 1299, y: 939, width: 800, height: 600 },
+    { x: 1200, y: 924, width: 800, height: 600 },
   ])('keeps visible bounds unchanged: %j', (bounds) => {
     expect(correctWindowBounds(bounds, workAreas, primary)).toEqual(bounds);
+  });
+
+  it('moves a window whose title strip is above every work area', () => {
+    const bounds = { x: 200, y: 0, width: 800, height: 600 };
+    expect(correctWindowBounds(bounds, workAreas, primary)).toEqual({
+      x: 300,
+      y: 190,
+      width: 800,
+      height: 600,
+    });
+  });
+
+  it('moves a window with only a one-pixel corner visible', () => {
+    const bounds = { x: 1299, y: 939, width: 800, height: 600 };
+    expect(correctWindowBounds(bounds, workAreas, primary)).toEqual({
+      x: 300,
+      y: 190,
+      width: 800,
+      height: 600,
+    });
   });
 
   it('centers bounds outside every display on the primary work area', () => {

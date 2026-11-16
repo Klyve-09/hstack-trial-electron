@@ -11,6 +11,10 @@ export interface WindowState {
 
 type WindowBounds = Pick<WindowState, 'x' | 'y' | 'width' | 'height'>;
 
+const TITLE_STRIP_HEIGHT = 32;
+const MIN_VISIBLE_WIDTH = 100;
+const MIN_VISIBLE_HEIGHT = 16;
+
 export function correctWindowBounds(
   bounds: WindowBounds,
   workAreas: WindowBounds[],
@@ -18,10 +22,15 @@ export function correctWindowBounds(
 ): WindowBounds {
   const visible = workAreas.some(
     (area) =>
-      bounds.x < area.x + area.width &&
-      bounds.x + bounds.width > area.x &&
-      bounds.y < area.y + area.height &&
-      bounds.y + bounds.height > area.y,
+      Math.min(bounds.x + bounds.width, area.x + area.width) -
+        Math.max(bounds.x, area.x) >=
+        Math.min(MIN_VISIBLE_WIDTH, bounds.width) &&
+      Math.min(
+        bounds.y + Math.min(TITLE_STRIP_HEIGHT, bounds.height),
+        area.y + area.height,
+      ) -
+        Math.max(bounds.y, area.y) >=
+        Math.min(MIN_VISIBLE_HEIGHT, bounds.height),
   );
   if (visible) return bounds;
 
@@ -40,6 +49,7 @@ export function loadWindowState(file: string): WindowState | null {
     const value: unknown = JSON.parse(readFileSync(file, 'utf8'));
     if (!value || typeof value !== 'object') return null;
     const state = value as WindowState;
+    // Electron Rectangle coordinates and dimensions are Integer: https://www.electronjs.org/docs/latest/api/structures/rectangle
     if (
       !Number.isInteger(state.x) ||
       !Number.isInteger(state.y) ||
