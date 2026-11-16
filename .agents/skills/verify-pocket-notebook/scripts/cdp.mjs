@@ -22,7 +22,7 @@ function fail(message, code = 1) {
 
 if (!port || !command) {
   fail(
-    'usage: cdp.mjs <port> wait|click|type|text|axtree|url <selector> [text] [--name N] [--dialog accept|dismiss] [--timeout ms]',
+    'usage: cdp.mjs <port> wait|click|type|text|value|axtree|url <selector> [text] [--name N] [--dialog accept|dismiss] [--timeout ms]',
     2,
   );
 }
@@ -172,6 +172,10 @@ switch (command) {
     }
     break;
   }
+  case 'value':
+    await waitFor(args[0]);
+    process.stdout.write(`${await evaluate(`${locate(args[0])}.value`)}\n`);
+    break;
   case 'url':
     process.stdout.write(`${await evaluate('location.href')}\n`);
     break;

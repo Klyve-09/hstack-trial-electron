@@ -71,6 +71,7 @@ $S cdp <command> <selector> [text] [--name "<accessible name>"] [--dialog accept
 | `type SEL TEXT` | Clicks the field, selects all with Ctrl+A, and inserts the text through `Input.insertText`. This fires the same `input` events as typing.       |
 | `text [SEL]`    | Prints the element's visible text. The default element is `body`.                                                                               |
 | `axtree`        | Prints the accessibility tree as `role "name"` lines.                                                                                           |
+| `value SEL`     | Prints a form field's current value. `text` does not include field values.                                                                      |
 | `url`           | Prints the page URL. The route is in the hash.                                                                                                  |
 
 - `--name` picks the element whose `aria-label`, or else whose whitespace-collapsed text, equals the name. Prefer it over position: `$S cdp click a --name '+ New item'`.
