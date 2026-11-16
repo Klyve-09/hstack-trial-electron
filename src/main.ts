@@ -1,15 +1,34 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { readItems, removeItem, saveItem } from './storage';
+import {
+  correctWindowBounds,
+  loadWindowState,
+  saveWindowState,
+} from './windowState';
 import type { ItemDraft } from './items';
 
 if (started) app.quit();
 
 function createWindow() {
+  const stateFile = path.join(app.getPath('userData'), 'window-state.json');
+  const savedState = loadWindowState(stateFile);
+  const bounds = savedState
+    ? correctWindowBounds(
+        {
+          x: savedState.x,
+          y: savedState.y,
+          width: savedState.width,
+          height: savedState.height,
+        },
+        screen.getAllDisplays().map((display) => display.workArea),
+        screen.getPrimaryDisplay().workArea,
+      )
+    : { width: 960, height: 720 };
   const window = new BrowserWindow({
-    width: 960,
-    height: 720,
+    ...bounds,
+    show: false,
     minWidth: 640,
     minHeight: 500,
     title: 'Pocket Notebook',
@@ -19,6 +38,33 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true,
     },
+  });
+  let maximized = savedState?.maximized ?? false;
+  window.on('maximize', () => {
+    if (!window.isMinimized()) maximized = true;
+  });
+  window.on('unmaximize', () => {
+    if (!window.isMinimized()) maximized = false;
+  });
+  let revealed = false;
+  function reveal() {
+    if (revealed) return;
+    revealed = true;
+    if (savedState?.maximized) window.maximize();
+    window.show();
+  }
+  window.once('ready-to-show', reveal);
+  window.webContents.once('did-fail-load', reveal);
+  window.webContents.once('render-process-gone', reveal);
+  window.on('close', () => {
+    try {
+      saveWindowState(stateFile, {
+        ...window.getNormalBounds(),
+        maximized: window.isMinimized() ? maximized : window.isMaximized(),
+      });
+    } catch (error) {
+      console.error('Could not save window state:', error);
+    }
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', (event) => event.preventDefault());
