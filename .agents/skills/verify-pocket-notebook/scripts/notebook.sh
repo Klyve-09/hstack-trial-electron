@@ -7,7 +7,7 @@ SCRIPTS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(git -C "$SCRIPTS" rev-parse --show-toplevel)"
 RUN="${PN_RUN:-/tmp/pocket-notebook-verify/run}"
 STATE="$RUN/state"
-APP="$ROOT/out/Pocket Notebook-linux-x64/Pocket Notebook"
+APP="$ROOT/out/Pocket Notebook-linux-x64/pocket-notebook"
 
 die() {
   echo "notebook: $*" >&2

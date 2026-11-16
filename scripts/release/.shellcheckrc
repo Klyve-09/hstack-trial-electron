@@ -1,0 +1,4 @@
+# The shared wizard library must remain byte-for-byte identical to template.sh.
+# SC1087: its Readline prompt uses scalar $e followed by literal brackets.
+# SC2329: this publish wizard does not use every helper in the shared library.
+disable=SC1087,SC2329

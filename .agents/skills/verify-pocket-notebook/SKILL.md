@@ -29,7 +29,7 @@ Launch requires `Xvfb` and ImageMagick `import` on the machine, and refuses to s
 
 Launch does the following:
 
-1. Runs `npm run package`, which rebuilds `out/Pocket Notebook-linux-x64/` from the current checkout.
+1. Runs `npm run package`, which rebuilds `out/Pocket Notebook-linux-x64/pocket-notebook` from the current checkout.
 2. Starts `Xvfb` at 1280x800 on a free display.
 3. Starts the packaged app with `XDG_CONFIG_HOME` pointed at an empty scratch directory, so the app starts with no items and never touches `~/.config/Pocket Notebook`.
 4. Waits until the Items list has rendered (`main h1 .count` visible), which happens only after the app has read its notebook file.

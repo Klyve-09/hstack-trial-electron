@@ -25,14 +25,28 @@ npm run package
 `npm test` runs the Vitest storage tests. `npm run lint` runs Oxlint and checks formatting with Oxfmt; `npm run lint:fix` applies fixes. `npm run package` creates a desktop application in `out/` for your current platform. On Linux x64, launch it with:
 
 ```sh
-"out/Pocket Notebook-linux-x64/Pocket Notebook"
+"out/Pocket Notebook-linux-x64/pocket-notebook"
 ```
 
 For a headless Linux desktop smoke run, use Xvfb:
 
 ```sh
-xvfb-run -a "out/Pocket Notebook-linux-x64/Pocket Notebook" --disable-gpu
+xvfb-run -a "out/Pocket Notebook-linux-x64/pocket-notebook" --disable-gpu
 ```
+
+### Release packages
+
+With Docker installed and running, build the unsigned Linux deb and rpm packages and check them in fresh Ubuntu and Fedora containers:
+
+```sh
+./scripts/release/linux-packages.sh
+```
+
+The script uses Node.js 22, installs each package with its declared dependencies, and launches the installed app under Xvfb as a non-root user. It requires a live main process and renderer descendant, prints app logs and installed metadata/license, and reports package sizes and SHA-256 sums. If the container blocks Chromium’s sandbox, the check prints its test-only `--no-sandbox` fallback. Artifacts remain in `out/make/`; nothing is published.
+
+On macOS, after `npm ci`, run `bash scripts/release/macos-package.sh` to build the unsigned zip and check the extracted app’s main process and renderer; CI runs this as `make-macos`.
+
+Publishing: after the release PR merges, a maintainer runs `scripts/release/publish.sh` from an up-to-date `main`. The wizard pushes the `v<version>` tag, waits for the release workflow to build and attach packages to a draft release, then publishes after confirmation. Packages are unsigned; Windows is not built.
 
 ## Local data
 
