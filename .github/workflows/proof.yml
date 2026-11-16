@@ -1,0 +1,112 @@
+name: Proof
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      package-macos: ${{ steps.match.outputs.package-macos }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: match
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess
+
+          CHECKS = ["package-macos"]
+
+
+          def write(values):
+              with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+                  for name in CHECKS:
+                      out.write(f"{name}={'true' if values.get(name, True) else 'false'}\n")
+
+
+          def glob(pattern):
+              regex, i = "", 0
+              while i < len(pattern):
+                  if pattern.startswith("**/", i):
+                      regex, i = regex + "(?:[^/]+/)*", i + 3
+                  elif pattern.startswith("**", i):
+                      regex, i = regex + ".*", i + 2
+                  elif pattern[i] == "*":
+                      regex, i = regex + "[^/]*", i + 1
+                  else:
+                      regex, i = regex + re.escape(pattern[i]), i + 1
+              return re.compile(regex + r"\Z")
+
+
+          def changed_paths():
+              event = os.environ["EVENT"]
+              if event == "pull_request":
+                  span = f"{os.environ['PR_BASE']}...{os.environ['PR_HEAD']}"
+              elif event == "push":
+                  before = os.environ.get("PUSH_BEFORE", "")
+                  if not before or set(before) == {"0"}:
+                      return None
+                  span = f"{before}..{os.environ['PUSH_AFTER']}"
+              else:
+                  return None
+              diff = subprocess.run(["git", "diff", "--name-only", span], check=True, capture_output=True, text=True)
+              return [path for path in diff.stdout.splitlines() if path]
+
+
+          try:
+              paths = changed_paths()
+              if paths is None:
+                  write({})
+              else:
+                  text = open("docs/agents/proof.md", encoding="utf-8").read()
+                  coverage = text.split("\n## Coverage\n", 1)[1].split("\n## ", 1)[0]
+                  patterns = {name: [] for name in CHECKS}
+                  for line in coverage.splitlines():
+                      match = re.fullmatch(r"- `([^`]+)`: `([^`]+)`", line.strip())
+                      if match and match.group(1) in patterns:
+                          patterns[match.group(1)].append(glob(match.group(2)))
+                  write({name: not patterns[name] or any(p.match(path) for p in patterns[name] for path in paths) for name in CHECKS})
+          except Exception as error:
+              print(f"Could not compute changed Coverage paths, running every ci check: {error}")
+              write({})
+          PY
+
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run package
+
+  package-macos:
+    name: package-macos
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.package-macos == 'true') }}
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run package
