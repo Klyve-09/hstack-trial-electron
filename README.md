@@ -46,6 +46,8 @@ The script uses Node.js 22, installs each package with its declared dependencies
 
 On macOS, after `npm ci`, run `bash scripts/release/macos-package.sh` to build the unsigned zip and check the extracted app’s main process and renderer; CI runs this as `make-macos`.
 
+Publishing: after the release PR merges, a maintainer runs `scripts/release/publish.sh` from an up-to-date `main`. The wizard pushes the `v<version>` tag, waits for the release workflow to build and attach packages to a draft release, then publishes after confirmation. Packages are unsigned; Windows is not built.
+
 ## Local data
 
 The main process reads and writes `items.json` in Electron's `app.getPath('userData')` directory. On Linux the default is `~/.config/Pocket Notebook/items.json`; on macOS it is `~/Library/Application Support/Pocket Notebook/items.json`, and on Windows it is `%APPDATA%/Pocket Notebook/items.json`. The file is created on the first save. Back it up by copying it while the app is closed.
