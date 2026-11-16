@@ -44,6 +44,8 @@ With Docker installed and running, build the unsigned Linux deb and rpm packages
 
 The script uses Node.js 22, installs each package with its declared dependencies, and launches the installed app under Xvfb as a non-root user. It requires a live main process and renderer descendant, prints app logs and installed metadata/license, and reports package sizes and SHA-256 sums. If the container blocks Chromium’s sandbox, the check prints its test-only `--no-sandbox` fallback. Artifacts remain in `out/make/`; nothing is published.
 
+On macOS, after `npm ci`, run `bash scripts/release/macos-package.sh` to build the unsigned zip and check the extracted app’s main process and renderer; CI runs this as `make-macos`. The macOS check could not be run in the Linux implementation environment and must be confirmed on the macOS CI runner.
+
 ## Local data
 
 The main process reads and writes `items.json` in Electron's `app.getPath('userData')` directory. On Linux the default is `~/.config/Pocket Notebook/items.json`; on macOS it is `~/Library/Application Support/Pocket Notebook/items.json`, and on Windows it is `%APPDATA%/Pocket Notebook/items.json`. The file is created on the first save. Back it up by copying it while the app is closed.

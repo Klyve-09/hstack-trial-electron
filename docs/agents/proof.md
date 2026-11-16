@@ -2,6 +2,7 @@
 
 Run these checks in order from the repository root. Every command must exit zero.
 
+<!-- prettier-ignore -->
 | Check           | Command             | Machine |
 | --------------- | ------------------- | ------- |
 | test            | `npm test`          |         |
@@ -10,6 +11,7 @@ Run these checks in order from the repository root. Every command must exit zero
 | package         | `npm run package`   |         |
 | package-windows | `npm run package`   | windows |
 | package-macos   | `npm run package`   | ci      |
+| make-macos      | `bash scripts/release/macos-package.sh` | ci      |
 
 ## Requirements
 
@@ -17,10 +19,18 @@ Run these checks in order from the repository root. Every command must exit zero
 - Run `npm ci` from the repository root before the checks on each machine.
 - `package-windows` runs on a Windows Hand.
 - `package-macos` runs as the `package-macos` GitHub Actions job on a macOS runner.
+- `make-macos` runs as the `make-macos` GitHub Actions job on a macOS runner.
 
 ## Coverage
 
 - `lint`: `**`
+- `make-macos`: `*.mts`
+- `make-macos`: `index.html`
+- `make-macos`: `package-lock.json`
+- `make-macos`: `package.json`
+- `make-macos`: `scripts/release/**`
+- `make-macos`: `src/**`
+- `make-macos`: `tsconfig.json`
 - `package-macos`: `*.mts`
 - `package-macos`: `index.html`
 - `package-macos`: `package-lock.json`
