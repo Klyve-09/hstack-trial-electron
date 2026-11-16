@@ -46,10 +46,16 @@ function createWindow() {
   window.on('unmaximize', () => {
     if (!window.isMinimized()) maximized = false;
   });
-  window.once('ready-to-show', () => {
+  let revealed = false;
+  function reveal() {
+    if (revealed) return;
+    revealed = true;
     if (savedState?.maximized) window.maximize();
     window.show();
-  });
+  }
+  window.once('ready-to-show', reveal);
+  window.webContents.once('did-fail-load', reveal);
+  window.webContents.once('render-process-gone', reveal);
   window.on('close', () => {
     try {
       saveWindowState(stateFile, {

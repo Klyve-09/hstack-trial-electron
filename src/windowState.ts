@@ -11,6 +11,7 @@ export interface WindowState {
 
 type WindowBounds = Pick<WindowState, 'x' | 'y' | 'width' | 'height'>;
 
+// A restored window is visible only if enough title bar is on a display to grab and drag it.
 const TITLE_STRIP_HEIGHT = 32;
 const MIN_VISIBLE_WIDTH = 100;
 const MIN_VISIBLE_HEIGHT = 16;
