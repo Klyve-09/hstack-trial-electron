@@ -2,6 +2,7 @@
 set -euo pipefail
 
 [[ $(uname -s) == Darwin ]] || { echo 'FAIL: this check requires macOS' >&2; exit 1; }
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 npm run make
 
 # Bash 3.2 (the macOS default) has no globstar or mapfile.

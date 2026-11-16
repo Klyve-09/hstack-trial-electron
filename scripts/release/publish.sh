@@ -215,7 +215,7 @@ read_release() {
 }
 
 rollback() {
-  local state rc=0
+  local state remote_tag rc=0
   if read_release; then
     state=$(node -p 'JSON.parse(require("fs").readFileSync(process.argv[1])).isDraft' "$WORK/release.json")
     if [[ "$state" != true ]]; then
@@ -239,12 +239,14 @@ rollback() {
     fi
   fi
   warn "Ensure the release workflow is finished before deleting tags."
-  if confirm "Delete remote tag $TAG?"; then
-    git push --delete origin "$TAG" || { warn "Remote tag deletion failed; local tag kept."; return 0; }
+  if remote_tag=$(git ls-remote --tags origin "refs/tags/$TAG"); then
+    if [[ -n "$remote_tag" ]] && confirm "Delete remote tag $TAG?"; then
+      git push --delete origin "$TAG" || warn "Remote tag deletion failed; inspect origin tags."
+    fi
   else
-    return 0
+    warn "Could not check origin tags; inspect origin before deleting the remote tag."
   fi
-  if confirm "Delete local tag $TAG?"; then
+  if [[ -n "$(git tag --list "$TAG")" ]] && confirm "Delete local tag $TAG?"; then
     git tag -d "$TAG" || warn "Local tag deletion failed; inspect git tags."
   fi
 }
@@ -306,8 +308,8 @@ say "Ready: $TAG at $HEAD_SHA; Proof succeeded."
 pause
 
 stage "Release notes"
-cat > "$NOTES_FILE" <<'NOTES'
-Pocket Notebook 1.0.0 is the first release.
+cat > "$NOTES_FILE" <<NOTES
+Pocket Notebook $VERSION is the first release.
 
 - Browse, create, edit, and delete notes with a title and body.
 - Notes are stored only on your device; no accounts, servers, analytics, or cloud sync.

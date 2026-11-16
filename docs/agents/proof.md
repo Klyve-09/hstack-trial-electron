@@ -25,6 +25,7 @@ Run these checks in order from the repository root. Every command must exit zero
 
 - `lint`: `**`
 - `make-macos`: `*.mts`
+- `make-macos`: `LICENSE`
 - `make-macos`: `index.html`
 - `make-macos`: `package-lock.json`
 - `make-macos`: `package.json`
@@ -32,18 +33,21 @@ Run these checks in order from the repository root. Every command must exit zero
 - `make-macos`: `src/**`
 - `make-macos`: `tsconfig.json`
 - `package-macos`: `*.mts`
+- `package-macos`: `LICENSE`
 - `package-macos`: `index.html`
 - `package-macos`: `package-lock.json`
 - `package-macos`: `package.json`
 - `package-macos`: `src/**`
 - `package-macos`: `tsconfig.json`
 - `package-windows`: `*.mts`
+- `package-windows`: `LICENSE`
 - `package-windows`: `index.html`
 - `package-windows`: `package-lock.json`
 - `package-windows`: `package.json`
 - `package-windows`: `src/**`
 - `package-windows`: `tsconfig.json`
 - `package`: `*.mts`
+- `package`: `LICENSE`
 - `package`: `index.html`
 - `package`: `package-lock.json`
 - `package`: `package.json`
@@ -60,4 +64,3 @@ Run these checks in order from the repository root. Every command must exit zero
 - `typecheck`: `src/**`
 - `typecheck`: `tests/**`
 - `typecheck`: `tsconfig.json`
-- Review-only: `LICENSE`
