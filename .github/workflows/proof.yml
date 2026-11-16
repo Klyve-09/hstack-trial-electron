@@ -60,7 +60,7 @@ jobs:
                   span = f"{before}..{os.environ['PUSH_AFTER']}"
               else:
                   return None
-              diff = subprocess.run(["git", "diff", "--name-only", span], check=True, capture_output=True, text=True)
+              diff = subprocess.run(["git", "diff", "--name-only", "--no-renames", span], check=True, capture_output=True, text=True)
               return [path for path in diff.stdout.splitlines() if path]
 
 
